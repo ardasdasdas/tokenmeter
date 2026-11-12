@@ -14,6 +14,7 @@
 <p align="center">
   <a href="https://ardasdasdas.github.io/tokenmeter/"><img alt="Live demo" src="https://img.shields.io/badge/live%20demo-ardasdasdas.github.io%2Ftokenmeter-6366F1?style=for-the-badge"></a>
   <a href="https://github.com/ardasdasdas/tokenmeter/actions/workflows/pages.yml"><img alt="Deploy" src="https://img.shields.io/github/actions/workflow/status/ardasdasdas/tokenmeter/pages.yml?branch=main&style=for-the-badge&label=deploy"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-34D399?style=for-the-badge"></a>
 </p>
 
 <p align="center">
@@ -97,3 +98,7 @@ Notes:
 
 The static site lives in [`app/static`](app/static) and is deployed to GitHub Pages by
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main`.
+
+## License
+
+[MIT](LICENSE) © 2026 Arda Uslu
