@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" role="img" aria-label="Tokenmeter">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E1B4B"/>
+      <stop offset="1" stop-color="#312E81"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <path d="M15 18 L10 18 L10 46 L15 46" fill="none" stroke="#C7D2FE" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M49 18 L54 18 L54 46 L49 46" fill="none" stroke="#C7D2FE" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="16" y="22" width="14" height="9" rx="4.5" fill="#FBBF24"/>
+  <rect x="32.5" y="22" width="15.5" height="9" rx="4.5" fill="#34D399"/>
+  <rect x="16" y="34" width="20" height="9" rx="4.5" fill="#F472B6"/>
+  <rect x="38.5" y="34" width="9.5" height="9" rx="4.5" fill="#60A5FA"/>
+  <text x="80" y="42" font-family="'Space Grotesk', 'Segoe UI', system-ui, sans-serif" font-size="30" font-weight="700" fill="#E0E7FF" letter-spacing="-0.5">Token<tspan fill="#818CF8">meter</tspan></text>
+</svg>

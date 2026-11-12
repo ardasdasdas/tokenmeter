@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tokenmeter</title>
+  <meta name="description" content="Count how many tokens your text uses with any Hugging Face model's real tokenizer.">
+  <link rel="icon" type="image/svg+xml" href="logo-mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="./">
+      <img src="logo-mark.svg" alt="" width="40" height="40">
+      <span class="wordmark">Token<em>meter</em></span>
+    </a>
+    <p class="tagline">Count how many tokens your text uses with any Hugging Face model's real tokenizer.</p>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <label class="field-label" for="model">Model</label>
+      <div class="model-row">
+        <div class="combo" id="combo">
+          <input id="model" role="combobox" aria-expanded="false" aria-controls="model-list"
+                 aria-autocomplete="list" autocomplete="off" spellcheck="false"
+                 placeholder="Search cached models or paste a Hugging Face name / link">
+          <svg class="caret" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <ul id="model-list" class="menu" role="listbox" hidden></ul>
+        </div>
+        <button id="load" class="btn">Load</button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <div class="text-head">
+        <label class="field-label" for="text">Text</label>
+        <label class="check"><input type="checkbox" id="special"> Include special tokens (BOS/EOS)</label>
+      </div>
+      <textarea id="text" rows="9" placeholder="Paste the text you want to count tokens for…"></textarea>
+
+      <div class="stats">
+        <div class="stat primary">
+          <span class="stat-value" id="token-count">–</span>
+          <span class="stat-label">tokens</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="char-count">0</span>
+          <span class="stat-label">characters</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="ratio">–</span>
+          <span class="stat-label">characters / token</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="text-head">
+        <h2 class="field-label">Token view</h2>
+        <label class="check"><input type="checkbox" id="show-ids"> Show IDs</label>
+      </div>
+      <div id="tokens" class="tokens"><span class="muted">Pick a model and enter some text to see each token highlighted here.</span></div>
+      <p id="tokens-note" class="muted small" hidden></p>
+    </section>
+  </main>
+
+  <footer class="foot muted small">
+    <span id="mode-note">tokenizer.json files are downloaded on first use and cached.</span>
+    <a href="https://github.com/ardasdasdas/tokenmeter">Source on GitHub</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
