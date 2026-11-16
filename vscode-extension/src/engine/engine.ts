@@ -179,7 +179,7 @@ export class TokenEngine {
         new TokenmeterError('internal', `Tokenmeter's tokenizer worker stopped unexpectedly: ${detail}`),
       );
     };
-    worker.on('error', (e) => lost(e.message));
+    worker.on('error', (e: Error) => lost(e.message));
     worker.on('messageerror', (e: Error) => lost(e.message));
     worker.on('exit', (code) => lost(`exit code ${code}`));
     this.handle = handle;
