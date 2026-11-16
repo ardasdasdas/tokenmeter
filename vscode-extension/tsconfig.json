@@ -8,7 +8,7 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node", "mocha"]
   },
   "include": ["src", "test", "scripts", "vitest.config.mts"]
 }

@@ -18,16 +18,86 @@
     "build:pack": "node scripts/build-pack.ts",
     "build": "node esbuild.mjs",
     "test:unit": "npm run build && vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:ext": "vscode-test"
   },
   "devDependencies": {
+    "@types/mocha": "10.0.10",
     "@types/node": "26.6.6",
     "@types/vscode": "1.100.0",
+    "@vscode/test-cli": "0.0.15",
+    "@vscode/test-electron": "3.1.0",
     "esbuild": "0.28.2",
+    "mocha": "12.0.3",
     "typescript": "7.0.2",
     "vitest": "5.1.0"
   },
   "dependencies": {
     "@huggingface/tokenizers": "0.2.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "tokenmeter.selectModel",
+        "title": "Tokenmeter: Select Model"
+      },
+      {
+        "command": "tokenmeter.addModel",
+        "title": "Tokenmeter: Add Model"
+      },
+      {
+        "command": "tokenmeter.setHfToken",
+        "title": "Tokenmeter: Set Hugging Face Token"
+      },
+      {
+        "command": "tokenmeter.clearHfToken",
+        "title": "Tokenmeter: Clear Hugging Face Token"
+      },
+      {
+        "command": "tokenmeter.removeModel",
+        "title": "Tokenmeter: Remove Downloaded Model"
+      },
+      {
+        "command": "tokenmeter.countNow",
+        "title": "Tokenmeter: Count Now"
+      }
+    ],
+    "configuration": {
+      "title": "Tokenmeter",
+      "properties": {
+        "tokenmeter.model": {
+          "type": "string",
+          "default": "google/gemma-4-31B-it",
+          "scope": "window",
+          "description": "Hugging Face model whose tokenizer is used for counting, as owner/model."
+        },
+        "tokenmeter.includeSpecialTokens": {
+          "type": "boolean",
+          "default": false,
+          "scope": "window",
+          "description": "Count the special tokens (such as BOS/EOS) the tokenizer adds around the text."
+        },
+        "tokenmeter.warningThreshold": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "scope": "window",
+          "description": "Highlight the status bar item when the token count is above this number. 0 turns the warning off."
+        },
+        "tokenmeter.maxDocumentSize": {
+          "type": "number",
+          "default": 500000,
+          "minimum": 0,
+          "scope": "window",
+          "description": "Documents with more characters than this are counted only when you click the status bar item."
+        }
+      }
+    }
   }
 }

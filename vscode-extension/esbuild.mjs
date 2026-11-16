@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import { build } from 'esbuild';
 
 const common = {
@@ -15,10 +16,20 @@ await build({
   outfile: 'dist/worker.js',
 });
 
-// Task 6: add the extension bundle here.
-// await build({
-//   ...common,
-//   entryPoints: ['src/extension.ts'],
-//   outfile: 'dist/extension.js',
-//   external: ['vscode'],
-// });
+await build({
+  ...common,
+  entryPoints: ['src/extension.ts'],
+  outfile: 'dist/extension.js',
+  external: ['vscode'],
+});
+
+// Extension-host tests (run by `npm run test:ext`).
+const extTests = readdirSync('test/ext')
+  .filter((f) => f.endsWith('.test.ts'))
+  .map((f) => `test/ext/${f}`);
+await build({
+  ...common,
+  entryPoints: extTests,
+  outdir: 'dist/test/ext',
+  external: ['vscode', 'mocha'],
+});
