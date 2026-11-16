@@ -2,6 +2,8 @@ import { join } from 'node:path';
 import * as vscode from 'vscode';
 import { HF_TOKEN_KEY } from './config.ts';
 import { TokenEngine } from './engine/engine.ts';
+import { getLastBreakdown, showBreakdown } from './ui/breakdown.ts';
+import type { Breakdown } from './ui/breakdown.ts';
 import { addModel, removeModel, selectModel } from './ui/modelPicker.ts';
 import { StatusBar } from './ui/statusBar.ts';
 
@@ -10,6 +12,7 @@ let engine: TokenEngine | undefined;
 /** Exported by `activate` for the extension tests. */
 export interface TokenmeterApi {
   getStatusText(): string;
+  getLastBreakdown(): Breakdown | undefined;
 }
 
 export function activate(context: vscode.ExtensionContext): TokenmeterApi {
@@ -30,6 +33,7 @@ export function activate(context: vscode.ExtensionContext): TokenmeterApi {
       await removeModel(eng);
       statusBar.retry();
     }),
+    cmd('tokenmeter.showBreakdown', () => showBreakdown(context, eng)),
     cmd('tokenmeter.countNow', () => statusBar.countNow()),
     cmd('tokenmeter.setHfToken', async () => {
       const token = await vscode.window.showInputBox({
@@ -45,7 +49,7 @@ export function activate(context: vscode.ExtensionContext): TokenmeterApi {
       if (e.key === HF_TOKEN_KEY) statusBar.retry();
     }),
   );
-  return { getStatusText: () => statusBar.text };
+  return { getStatusText: () => statusBar.text, getLastBreakdown };
 }
 
 export async function deactivate(): Promise<void> {
