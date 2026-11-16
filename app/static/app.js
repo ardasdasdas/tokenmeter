@@ -18,6 +18,7 @@
   let last = null;
   let current = "";      // last successfully loaded model
   let cached = [];       // models in the cache
+  let bundled = [];      // built-in models: { id, family }
   let options = [];      // rendered menu options
   let active = -1;
   let filtering = false; // true once the user types into the field
@@ -52,6 +53,9 @@
     async evict(model) {
       await fetch("api/cache/" + model, { method: "DELETE" });
     },
+    async bundled() {
+      return [];
+    },
   };
 
   // Browser engine: used on static hosting (GitHub Pages). Fetches tokenizer.json
@@ -68,6 +72,48 @@
     const openCache = async () => {
       try { return "caches" in self ? await caches.open(CACHE) : null; } catch { return null; }
     };
+
+    // Built-in pack: the tokenizers bundled with the VS Code extension, served with
+    // this site (pack/manifest.json + gzip parts). Absent in local dev without a build.
+    const PACK = "pack/";
+    let packPromise;
+    const pack = () => (packPromise ??= (async () => {
+      try {
+        const [m, l] = await Promise.all([fetch(PACK + "manifest.json"), fetch(PACK + "models.json")]);
+        if (!m.ok || !l.ok || typeof DecompressionStream === "undefined") return null;
+        const manifest = await m.json();
+        const models = await l.json();
+        const ids = new Map(Object.keys(manifest.models).map((id) => [id.toLowerCase(), id]));
+        return { manifest, models, ids };
+      } catch {
+        return null;
+      }
+    })());
+    const bundledId = async (model) => (await pack())?.ids.get(model.toLowerCase());
+
+    async function part(hash) {
+      const res = await fetch(`${PACK}parts/${hash}.json.gz`);
+      if (!res.ok) throw new Error(`Could not load the built-in tokenizer (HTTP ${res.status}).`);
+      const stream = res.body.pipeThrough(new DecompressionStream("gzip"));
+      return JSON.parse(await new Response(stream).text());
+    }
+
+    async function loadBundled(id) {
+      const { manifest } = await pack();
+      const layout = manifest.files[manifest.models[id]];
+      const hashes = new Set();
+      for (const [, v] of layout) {
+        if (typeof v === "string") hashes.add(v);
+        else for (const [, h] of v) hashes.add(h);
+      }
+      const parts = new Map(await Promise.all([...hashes].map(async (h) => [h, await part(h)])));
+      const out = {};
+      for (const [key, v] of layout) {
+        if (typeof v === "string") out[key] = parts.get(v);
+        else out[key] = Object.fromEntries(v.map(([k, h]) => [k, parts.get(h)]));
+      }
+      return out;
+    }
 
     async function explain(model, status) {
       try {
@@ -127,16 +173,19 @@
 
     return {
       name: "browser",
-      note: "Running in your browser — tokenizer.json files are fetched from Hugging Face and cached in this browser. Gated models need the local server.",
+      note: "Running in your browser — 50 popular tokenizers are built in; others are fetched from Hugging Face and cached in this browser. Gated models need the local server.",
       async tokenize(rawModel, text, special) {
-        const model = normalize(rawModel);
+        let model = normalize(rawModel);
         if (!REPO_RE.test(model)) {
           throw new Error("Invalid model name. Use the 'owner/model' format, e.g. google/gemma-4-31B-it.");
         }
+        const builtIn = await bundledId(model);
+        if (builtIn) model = builtIn;
         let tok = memory.get(model);
         let fromCache = true;
         if (!tok) {
-          const [{ Tokenizer }, [json, hit]] = await Promise.all([lib(), loadJson(model)]);
+          const load = builtIn ? loadBundled(builtIn).then((j) => [j, true]) : loadJson(model);
+          const [{ Tokenizer }, [json, hit]] = await Promise.all([lib(), load]);
           try {
             tok = new Tokenizer(json, {});
           } catch (err) {
@@ -153,10 +202,15 @@
           tokens: pieces(tok, enc, MAX_RENDER),
           ids: enc.ids,
           cached: fromCache,
+          bundled: Boolean(builtIn),
         };
       },
+      async bundled() {
+        return (await pack())?.models ?? [];
+      },
       async list() {
-        const models = new Set(memory.keys());
+        const p = await pack();
+        const models = new Set([...memory.keys()].filter((m) => !p?.manifest.models[m]));
         const cache = await openCache();
         if (cache) {
           for (const req of await cache.keys()) {
@@ -204,8 +258,8 @@
     const id = ++seq;
     loadBtn.disabled = true;
     if (announce) {
-      const isCached = cached.some((m) => m.toLowerCase() === model.toLowerCase());
-      setStatus(isCached ? `Loading ${model}…` : `Downloading tokenizer.json for ${model}…`);
+      const known = [...cached, ...bundled.map((b) => b.id)].some((m) => m.toLowerCase() === model.toLowerCase());
+      setStatus(known ? `Loading ${model}…` : `Downloading tokenizer.json for ${model}…`);
     }
     try {
       const engine = await engineReady;
@@ -215,7 +269,7 @@
       current = data.model;
       modelEl.value = data.model;
       setStatus(
-        `${data.model} · ${data.cached ? "from cache" : "downloaded from Hugging Face and cached"}`,
+        `${data.model} · ${data.bundled ? "built in" : data.cached ? "from cache" : "downloaded from Hugging Face and cached"}`,
         "ok",
       );
       render();
@@ -289,10 +343,16 @@
 
   // ------------------------------------------------------------ model menu
   async function refreshCache() {
+    const engine = await engineReady;
     try {
-      cached = await (await engineReady).list();
+      cached = await engine.list();
     } catch {
       cached = [];
+    }
+    try {
+      bundled = await engine.bundled();
+    } catch {
+      bundled = [];
     }
     if (!menuEl.hidden) buildMenu();
   }
@@ -313,7 +373,8 @@
     const norm = normalize(raw);
     const needle = (normalize(q) || q).toLowerCase();
     const matches = cached.filter((m) => !q || m.toLowerCase().includes(needle));
-    const exact = cached.some((m) => m.toLowerCase() === norm.toLowerCase());
+    const exact = [...cached, ...bundled.map((b) => b.id)].some((m) => m.toLowerCase() === norm.toLowerCase());
+    const builtIns = bundled.filter((b) => !q || b.id.toLowerCase().includes(needle) || b.family.toLowerCase().includes(needle));
 
     options = [];
     menuEl.replaceChildren();
@@ -389,8 +450,31 @@
       menuEl.append(item);
     }
 
+    // Built-in models
+    if (builtIns.length) {
+      const bhead = document.createElement("li");
+      bhead.className = "menu-head";
+      bhead.setAttribute("role", "presentation");
+      bhead.textContent = `Built-in models (${bundled.length})`;
+      menuEl.append(bhead);
+      for (const b of builtIns) {
+        options.push({ type: "model", value: b.id });
+        const item = document.createElement("li");
+        item.className = "opt" + (b.id === current ? " current" : "");
+        item.setAttribute("role", "option");
+        const name = document.createElement("span");
+        name.className = "name";
+        name.append(highlight(b.id, q));
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = b.id === current ? "in use" : b.family;
+        item.append(name, tag);
+        menuEl.append(item);
+      }
+    }
+
     // Default highlight
-    if (filtering) active = matches.length && !canLoadNew ? 1 : 0;
+    if (filtering) active = (matches.length || builtIns.length) && !canLoadNew ? 1 : 0;
     else active = Math.max(0, options.findIndex((o) => o.value === current));
     paintActive();
   }
@@ -483,6 +567,7 @@
   showIdsEl.addEventListener("change", render);
 
   try { modelEl.value = localStorage.getItem("tm:model") || ""; } catch {}
+  if (!modelEl.value) modelEl.value = "google/gemma-4-31B-it";
   refreshCache();
   if (modelEl.value) run({ announce: true });
 })();
