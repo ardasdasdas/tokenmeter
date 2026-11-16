@@ -3,3 +3,4 @@ dist/
 .cache/
 *.vsix
 .vscode-test/
+out/

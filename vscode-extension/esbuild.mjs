@@ -30,6 +30,6 @@ const extTests = readdirSync('test/ext')
 await build({
   ...common,
   entryPoints: extTests,
-  outdir: 'dist/test/ext',
+  outdir: 'out/test/ext',
   external: ['vscode', 'mocha'],
 });

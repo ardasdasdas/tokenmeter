@@ -1,7 +1,7 @@
 {
   "name": "tokenmeter",
   "displayName": "Tokenmeter",
-  "description": "Count tokens of the active document with Hugging Face tokenizers.",
+  "description": "Exact token counts for Hugging Face models in the status bar, with 50 popular tokenizers built in.",
   "publisher": "ardasdasdas",
   "license": "MIT",
   "version": "0.1.0",
@@ -14,19 +14,39 @@
     "type": "git",
     "url": "https://github.com/ardasdasdas/tokenmeter"
   },
+  "homepage": "https://github.com/ardasdasdas/tokenmeter/tree/main/vscode-extension",
+  "bugs": {
+    "url": "https://github.com/ardasdasdas/tokenmeter/issues"
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1E1B4B",
+    "theme": "dark"
+  },
+  "keywords": [
+    "tokens",
+    "tokenizer",
+    "token count",
+    "hugging face",
+    "llm",
+    "prompt"
+  ],
   "scripts": {
     "build:pack": "node scripts/build-pack.ts",
     "build": "node esbuild.mjs",
     "test:unit": "npm run build && vitest run",
     "typecheck": "tsc --noEmit",
-    "test:ext": "vscode-test"
+    "test:ext": "vscode-test",
+    "package": "vsce package"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@types/mocha": "10.0.10",
     "@types/node": "26.6.6",
     "@types/vscode": "1.100.0",
     "@vscode/test-cli": "0.0.15",
     "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "4.1.0",
     "esbuild": "0.28.2",
     "mocha": "12.0.3",
     "typescript": "7.0.2",
@@ -50,6 +70,10 @@
       {
         "command": "tokenmeter.addModel",
         "title": "Tokenmeter: Add Model"
+      },
+      {
+        "command": "tokenmeter.showBreakdown",
+        "title": "Tokenmeter: Show Token Breakdown"
       },
       {
         "command": "tokenmeter.setHfToken",
@@ -98,6 +122,15 @@
           "description": "Documents with more characters than this are counted only when you click the status bar item."
         }
       }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "tokenmeter.showBreakdown",
+          "when": "editorHasSelection",
+          "group": "navigation@100"
+        }
+      ]
     }
   }
 }
