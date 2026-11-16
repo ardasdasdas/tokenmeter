@@ -8,7 +8,7 @@ export type FetchLike = (
   init?: { headers?: Record<string, string>; redirect?: 'manual'; signal?: AbortSignal },
 ) => Promise<Response>;
 
-const MAX_BYTES = 200 * 1024 * 1024;
+const DEFAULT_MAX_BYTES = 200 * 1024 * 1024;
 const TIMEOUT_MS = 60_000;
 const MAX_REDIRECTS = 5;
 const HF_HOST = 'huggingface.co';
@@ -24,14 +24,27 @@ function isNotFound(e: unknown): boolean {
 export class DownloadStore {
   private readonly dir: string;
   private readonly fetchImpl: FetchLike;
+  private readonly maxBytes: number;
+  private readonly inflight = new Map<string, Promise<string>>();
+  private tmpCounter = 0;
 
-  constructor(dir: string, fetchImpl: FetchLike = (url, init) => fetch(url, init)) {
+  constructor(
+    dir: string,
+    fetchImpl: FetchLike = (url, init) => fetch(url, init),
+    options: { maxBytes?: number } = {},
+  ) {
     this.dir = dir;
     this.fetchImpl = fetchImpl;
+    this.maxBytes = options.maxBytes ?? DEFAULT_MAX_BYTES;
   }
 
   filePath(id: string): string {
-    return path.join(this.dir, id.replace('/', '--'), 'tokenizer.json');
+    const norm = normalizeModelId(id);
+    // Canonical ids only: reject anything normalization would rewrite (e.g. 'a/../../b' -> 'a/..').
+    if (norm !== id || norm.split('/').some((part) => /^\.+$/.test(part))) {
+      throw new TokenmeterError('invalid', `Invalid model name: ${id}`);
+    }
+    return path.join(this.dir, norm.replace('/', '--'), 'tokenizer.json');
   }
 
   async list(): Promise<string[]> {
@@ -59,8 +72,18 @@ export class DownloadStore {
     return true;
   }
 
-  async ensure(rawId: string, token?: string): Promise<string> {
+  ensure(rawId: string, token?: string): Promise<string> {
     const id = normalizeModelId(rawId);
+    const existing = this.inflight.get(id);
+    if (existing) return existing;
+    const p = this.doEnsure(id, token).finally(() => {
+      this.inflight.delete(id);
+    });
+    this.inflight.set(id, p);
+    return p;
+  }
+
+  private async doEnsure(id: string, token?: string): Promise<string> {
     const file = this.filePath(id);
 
     let cached: string | undefined;
@@ -92,7 +115,7 @@ export class DownloadStore {
 
     const tooLarge = () => new TokenmeterError('too_large', `'${id}': tokenizer.json is larger than 200 MB.`);
     const declared = Number(res.headers.get('content-length'));
-    if (Number.isFinite(declared) && declared > MAX_BYTES) {
+    if (Number.isFinite(declared) && declared > this.maxBytes) {
       await res.body?.cancel().catch(() => undefined);
       throw tooLarge();
     }
@@ -106,7 +129,7 @@ export class DownloadStore {
           const { done, value } = await reader.read();
           if (done) break;
           total += value.byteLength;
-          if (total > MAX_BYTES) {
+          if (total > this.maxBytes) {
             await reader.cancel().catch(() => undefined);
             throw tooLarge();
           }
@@ -125,10 +148,16 @@ export class DownloadStore {
       throw new TokenmeterError('corrupt', `Could not read tokenizer.json for '${id}': ${errText(e)}`);
     }
 
-    await fs.mkdir(path.dirname(file), { recursive: true });
-    const tmp = `${file}.tmp`;
-    await fs.writeFile(tmp, text);
-    await fs.rename(tmp, file);
+    const tmp = `${file}.${process.pid}.${this.tmpCounter++}.tmp`;
+    try {
+      await fs.mkdir(path.dirname(file), { recursive: true });
+      await fs.writeFile(tmp, text);
+      await fs.rename(tmp, file);
+    } catch (e) {
+      throw new TokenmeterError('corrupt', `Could not read tokenizer.json for '${id}': ${errText(e)}`);
+    } finally {
+      await fs.rm(tmp, { force: true }).catch(() => undefined);
+    }
     return file;
   }
 
@@ -136,7 +165,8 @@ export class DownloadStore {
     let url = startUrl;
     for (let hop = 0; ; hop++) {
       const headers: Record<string, string> = {};
-      if (token && new URL(url).hostname === HF_HOST) headers['Authorization'] = `Bearer ${token}`;
+      const u = new URL(url);
+      if (token && u.protocol === 'https:' && u.hostname === HF_HOST) headers['Authorization'] = `Bearer ${token}`;
       let res: Response;
       try {
         res = await this.fetchImpl(url, { headers, redirect: 'manual', signal });
@@ -149,7 +179,14 @@ export class DownloadStore {
         if (hop >= MAX_REDIRECTS) {
           throw new TokenmeterError('network', 'Could not reach Hugging Face: too many redirects');
         }
-        url = new URL(location, url).toString();
+        const next = new URL(location, url);
+        if (next.protocol !== 'https:') {
+          throw new TokenmeterError(
+            'network',
+            `Could not reach Hugging Face: insecure redirect to ${next.toString()}`,
+          );
+        }
+        url = next.toString();
         continue;
       }
       return res;

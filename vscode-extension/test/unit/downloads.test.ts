@@ -150,3 +150,112 @@ it("list() returns 'owner/name' ids; remove() deletes and returns true, false wh
   expect(await store.list()).toEqual([]);
   expect(await store.remove(ID)).toBe(false);
 });
+
+it('enforces the byte cap on streamed bodies without content-length', async () => {
+  const store = new DownloadStore(
+    dir,
+    fake(() => new Response(new ReadableStream({
+      start(c) {
+        c.enqueue(new Uint8Array(600));
+        c.enqueue(new Uint8Array(600));
+        c.close();
+      },
+    }), { status: 200 })),
+    { maxBytes: 1000 },
+  );
+  expect((await codeOf(store.ensure(ID))).code).toBe('too_large');
+  await expect(fs.access(store.filePath(ID))).rejects.toThrow();
+});
+
+it('follows 5 redirects but fails on the 6th with network', async () => {
+  let n = 0;
+  const store = new DownloadStore(
+    dir,
+    fake(() => new Response(null, { status: 302, headers: { location: `https://huggingface.co/r${++n}` } })),
+  );
+  const err = await codeOf(store.ensure(ID));
+  expect(err.code).toBe('network');
+  expect(calls).toHaveLength(6);
+});
+
+it('resolves a relative Location against the current URL', async () => {
+  const store = new DownloadStore(
+    dir,
+    fake((url) =>
+      url === HF
+        ? new Response(null, { status: 302, headers: { location: '/cdn/tokenizer.json' } })
+        : new Response(BODY, { status: 200 }),
+    ),
+  );
+  await store.ensure(ID, 'hf_secret');
+  expect(calls[1].url).toBe('https://huggingface.co/cdn/tokenizer.json');
+  expect(calls[1].headers['Authorization']).toBe('Bearer hf_secret');
+});
+
+it.each(['https://huggingface.co.evil.com/t.json', 'https://evilhuggingface.co/t.json'])(
+  'withholds the token from %s',
+  async (target) => {
+    const store = new DownloadStore(
+      dir,
+      fake((url) =>
+        url === HF
+          ? new Response(null, { status: 302, headers: { location: target } })
+          : new Response(BODY, { status: 200 }),
+      ),
+    );
+    await store.ensure(ID, 'hf_secret');
+    expect(calls[1].url).toBe(target);
+    expect(calls[1].headers['Authorization']).toBeUndefined();
+  },
+);
+
+it('rejects an http redirect target without sending anything to it', async () => {
+  const store = new DownloadStore(
+    dir,
+    fake(() => new Response(null, { status: 302, headers: { location: 'http://huggingface.co/t.json' } })),
+  );
+  const err = await codeOf(store.ensure(ID, 'hf_secret'));
+  expect(err.code).toBe('network');
+  expect(err.message).toBe(
+    'Could not reach Hugging Face: insecure redirect to http://huggingface.co/t.json',
+  );
+  expect(calls).toHaveLength(1);
+});
+
+it('maps 403 + gated with a token to the token-check message', async () => {
+  const store = new DownloadStore(
+    dir,
+    fake((url) =>
+      url === API
+        ? new Response(JSON.stringify({ gated: 'auto' }), { status: 200 })
+        : new Response('no', { status: 403 }),
+    ),
+  );
+  const err = await codeOf(store.ensure(ID, 'hf_secret'));
+  expect(err.code).toBe('gated');
+  expect(err.message).toBe(
+    `'${ID}' is a gated model. Check that your Hugging Face token is valid and that you accepted the license on the model page.`,
+  );
+});
+
+it('concurrent ensure() calls share one download', async () => {
+  const store = new DownloadStore(
+    dir,
+    fake(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+      return new Response(BODY, { status: 200 });
+    }),
+  );
+  const [a, b] = await Promise.all([store.ensure(ID), store.ensure(ID)]);
+  expect(a).toBe(b);
+  expect(calls).toHaveLength(1);
+  expect(await fs.readdir(path.dirname(a))).toEqual(['tokenizer.json']);
+});
+
+it('remove() of a traversal id rejects as invalid and deletes nothing', async () => {
+  const store = new DownloadStore(path.join(dir, 'store'), fake(() => new Response(BODY, { status: 200 })));
+  await fs.mkdir(path.join(dir, 'b'), { recursive: true });
+  const err = await codeOf(store.remove('a/../../b'));
+  expect(err.code).toBe('invalid');
+  await fs.access(path.join(dir, 'b'));
+});
