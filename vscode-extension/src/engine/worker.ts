@@ -41,11 +41,11 @@ function build(doc: unknown): Tokenizer {
   }
 }
 
-async function resolveTokenizer(req: WorkerRequest): Promise<Loaded> {
+async function resolveTokenizer(req: WorkerRequest): Promise<{ entry: Loaded; source: Source }> {
   const hit = loaded.get(req.model);
   if (hit) {
     remember(req.model, hit);
-    return hit;
+    return { entry: hit, source: hit.source };
   }
   const pack = await getPack();
   let entry: Loaded;
@@ -58,23 +58,28 @@ async function resolveTokenizer(req: WorkerRequest): Promise<Loaded> {
     } catch (e) {
       throw new TokenmeterError('corrupt', `Could not read tokenizer.json: ${(e as Error).message}`);
     }
-    entry = { tok: build(doc), source: req.fileSource ?? 'downloaded' };
+    entry = { tok: build(doc), source: 'downloaded' };
   } else {
     throw new NeedFile();
   }
   remember(req.model, entry);
-  return entry;
+  // Only the call that loaded a file the main thread just downloaded reports 'downloaded-now'.
+  const source = entry.source === 'downloaded' && req.fileSource === 'downloaded-now' ? 'downloaded-now' : entry.source;
+  return { entry, source };
 }
 
 function describe(e: unknown): Pick<WorkerFailure, 'code' | 'message'> {
   if (e instanceof NeedFile) return { code: 'need_file', message: 'Tokenizer file required' };
   if (e instanceof TokenmeterError) return { code: e.code, message: e.message };
-  return { code: 'corrupt', message: e instanceof Error ? e.message : String(e) };
+  return { code: 'internal', message: e instanceof Error ? e.message : String(e) };
 }
 
 async function handle(req: WorkerRequest): Promise<WorkerResponse> {
   try {
-    const { tok, source } = await resolveTokenizer(req);
+    const {
+      entry: { tok },
+      source,
+    } = await resolveTokenizer(req);
     const enc = tok.encode(req.text, { add_special_tokens: req.special });
     const result: Extract<WorkerResponse, { ok: true }>['result'] = {
       model: req.model,

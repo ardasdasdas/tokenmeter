@@ -5,7 +5,8 @@ export type ErrorCode =
   | 'no_tokenizer'
   | 'network'
   | 'too_large'
-  | 'corrupt';
+  | 'corrupt'
+  | 'internal';
 
 export class TokenmeterError extends Error {
   readonly code: ErrorCode;

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { access } from 'node:fs/promises';
+import { access, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import { DownloadStore, type FetchLike } from '../core/downloads.ts';
@@ -30,13 +30,19 @@ interface Pending {
   reject: (e: Error) => void;
 }
 
+/** One worker thread and the requests sent to it; events of a dead worker only touch its own requests. */
+interface Handle {
+  worker: Worker;
+  pending: Map<number, Pending>;
+  dead: boolean;
+}
+
 const DEFAULT_LIMIT = 4000;
 
 export class TokenEngine {
   private readonly opts: EngineOptions;
   private readonly store: DownloadStore;
-  private worker: Worker | undefined;
-  private readonly pending = new Map<number, Pending>();
+  private handle: Handle | undefined;
   private nextId = 1;
   private models: BundledModel[] | undefined;
   private disposed = false;
@@ -77,10 +83,13 @@ export class TokenEngine {
 
   async dispose(): Promise<void> {
     this.disposed = true;
-    const worker = this.worker;
-    this.worker = undefined;
-    this.failAll(new Error('Tokenizer engine was disposed'));
-    await worker?.terminate();
+    const handle = this.handle;
+    this.handle = undefined;
+    if (handle) {
+      handle.dead = true;
+      failAll(handle, new TokenmeterError('internal', 'Tokenmeter engine was disposed.'));
+      await handle.worker.terminate();
+    }
   }
 
   private async request(
@@ -93,51 +102,92 @@ export class TokenEngine {
     const base = { model: id, text, special, limit };
     let res = await this.send(base);
     if (!res.ok && res.code === 'need_file') {
-      // Not in memory or the pack: use the cached download or fetch it here, then let the worker load it.
-      const cached = await access(this.store.filePath(id)).then(
-        () => true,
-        () => false,
-      );
-      const file = await this.store.ensure(id, await this.opts.getToken());
-      res = await this.send({ ...base, file, fileSource: cached ? 'downloaded' : 'downloaded-now' });
+      res = await this.loadDownloaded(id, base);
     }
-    if (!res.ok) throw new TokenmeterError(res.code === 'need_file' ? 'corrupt' : res.code, res.message);
+    if (!res.ok) throw new TokenmeterError(res.code === 'need_file' ? 'internal' : res.code, res.message);
     return res.result;
   }
 
+  /** Cached file goes straight to the worker (it parses it); the store is used only to download or re-download. */
+  private async loadDownloaded(id: string, base: Omit<WorkerRequest, 'id'>): Promise<WorkerResponse> {
+    const file = this.filePathOf(id);
+    const cached = await access(file).then(
+      () => true,
+      () => false,
+    );
+    if (cached) {
+      const res = await this.send({ ...base, file, fileSource: 'downloaded' });
+      if (res.ok || res.code !== 'corrupt') return res;
+      await rm(file, { force: true }).catch(() => undefined);
+    }
+    const fresh = await this.download(id);
+    return this.send({ ...base, file: fresh, fileSource: 'downloaded-now' });
+  }
+
+  private filePathOf(id: string): string {
+    return this.store.filePath(id);
+  }
+
+  private async download(id: string): Promise<string> {
+    let token: string | undefined;
+    try {
+      token = await this.opts.getToken();
+    } catch {
+      token = undefined;
+    }
+    try {
+      return await this.store.ensure(id, token);
+    } catch (e) {
+      if (e instanceof TokenmeterError) throw e;
+      throw new TokenmeterError(
+        'corrupt',
+        `Could not read tokenizer.json for '${id}': ${e instanceof Error ? e.message : String(e)}`,
+      );
+    }
+  }
+
   private send(req: Omit<WorkerRequest, 'id'>): Promise<WorkerResponse> {
-    if (this.disposed) return Promise.reject(new Error('Tokenizer engine was disposed'));
-    const worker = this.ensureWorker();
+    if (this.disposed) {
+      return Promise.reject(new TokenmeterError('internal', 'Tokenmeter engine was disposed.'));
+    }
+    const handle = this.ensureHandle();
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
-      worker.postMessage({ ...req, id });
+      handle.pending.set(id, { resolve, reject });
+      handle.worker.postMessage({ ...req, id });
     });
   }
 
-  private ensureWorker(): Worker {
-    if (this.worker) return this.worker;
+  private ensureHandle(): Handle {
+    // A terminated worker has threadId -1; never send to it even if its exit event has not arrived yet.
+    if (this.handle && !this.handle.dead && this.handle.worker.threadId !== -1) return this.handle;
     const data: WorkerData = { packDir: this.opts.packDir };
     const worker = new Worker(this.opts.workerPath, { workerData: data });
+    const handle: Handle = { worker, pending: new Map(), dead: false };
     worker.on('message', (res: WorkerResponse) => {
-      const p = this.pending.get(res.id);
+      const p = handle.pending.get(res.id);
       if (!p) return;
-      this.pending.delete(res.id);
+      handle.pending.delete(res.id);
       p.resolve(res);
     });
-    // A crashed worker rejects what was in flight; the next request starts a fresh one.
-    const lost = (e: Error) => {
-      if (this.worker === worker) this.worker = undefined;
-      this.failAll(e);
+    const lost = (detail: string) => {
+      if (handle.dead) return;
+      handle.dead = true;
+      if (this.handle === handle) this.handle = undefined;
+      failAll(
+        handle,
+        new TokenmeterError('internal', `Tokenmeter's tokenizer worker stopped unexpectedly: ${detail}`),
+      );
     };
-    worker.on('error', lost);
-    worker.on('exit', (code) => lost(new Error(`Tokenizer worker exited (code ${code})`)));
-    this.worker = worker;
-    return worker;
+    worker.on('error', (e) => lost(e.message));
+    worker.on('messageerror', (e: Error) => lost(e.message));
+    worker.on('exit', (code) => lost(`exit code ${code}`));
+    this.handle = handle;
+    return handle;
   }
+}
 
-  private failAll(e: Error): void {
-    for (const p of this.pending.values()) p.reject(e);
-    this.pending.clear();
-  }
+function failAll(handle: Handle, e: Error): void {
+  for (const p of handle.pending.values()) p.reject(e);
+  handle.pending.clear();
 }
