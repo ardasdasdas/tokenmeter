@@ -1,5 +1,10 @@
 const SUPPORTED_SCHEMES = new Set(['file', 'untitled', 'vscode-notebook-cell', 'vscode-remote', 'vscode-userdata']);
 
+/** Whether documents with this URI scheme are counted. */
+export function isCountable(scheme: string): boolean {
+  return SUPPORTED_SCHEMES.has(scheme);
+}
+
 export interface TargetDocument<S> {
   getText(range?: S): string;
   uri: { scheme: string };

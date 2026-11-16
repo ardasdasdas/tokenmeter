@@ -3,7 +3,7 @@ import { getConfig } from '../config.ts';
 import { TokenmeterError } from '../core/errors.ts';
 import { LatestOnly } from '../core/latestOnly.ts';
 import type { CountResult, TokenEngine } from '../engine/engine.ts';
-import { countTarget } from './countTarget.ts';
+import { countTarget, isCountable } from './countTarget.ts';
 import {
   clickToCountView,
   errorView,
@@ -13,6 +13,14 @@ import {
 } from './statusModel.ts';
 
 const DEBOUNCE_MS = 200;
+
+/** Characters that would be counted (selections, else the document), without copying the text. */
+function textSize(editor: vscode.TextEditor): number {
+  const doc = editor.document;
+  const selected = editor.selections.filter((s) => !s.isEmpty);
+  if (selected.length === 0) return doc.offsetAt(doc.lineAt(doc.lineCount - 1).range.end);
+  return selected.reduce((n, s) => n + doc.offsetAt(s.end) - doc.offsetAt(s.start), 0);
+}
 
 interface Job {
   model: string;
@@ -100,15 +108,19 @@ export class StatusBar implements vscode.Disposable {
   private async refresh(force: boolean): Promise<void> {
     const gen = ++this.generation;
     const editor = vscode.window.activeTextEditor;
-    const target = editor && countTarget(editor.document, editor.selections);
-    if (!editor || !target) {
+    if (!editor || !isCountable(editor.document.uri.scheme)) {
       this.item.hide();
       return;
     }
     const cfg = getConfig();
-    const size = target.texts.reduce((n, t) => n + t.length, 0);
-    if (!force && size > cfg.maxDocumentSize) {
+    // Measure before copying any text, so huge documents cost nothing until clicked.
+    if (!force && textSize(editor) > cfg.maxDocumentSize) {
       this.show(clickToCountView(cfg.model));
+      return;
+    }
+    const target = countTarget(editor.document, editor.selections);
+    if (!target) {
+      this.item.hide();
       return;
     }
     this.show(loadingView());
@@ -160,6 +172,7 @@ export class StatusBar implements vscode.Disposable {
   private show(view: StatusView): void {
     this.item.text = view.text;
     this.item.tooltip = new vscode.MarkdownString(view.tooltip.join('\n\n'));
+    this.item.command = view.command ?? 'tokenmeter.selectModel';
     this.item.backgroundColor = view.warning ? new vscode.ThemeColor('statusBarItem.warningBackground') : undefined;
     this.item.show();
   }

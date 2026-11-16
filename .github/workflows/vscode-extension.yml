@@ -9,7 +9,7 @@ on:
     paths: ['vscode-extension/**', '.github/workflows/vscode-extension.yml']
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -24,13 +24,18 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: vscode-extension/package-lock.json
+      - name: Cache downloaded tokenizers
+        uses: actions/cache@v6
+        with:
+          path: vscode-extension/.cache
+          key: tokenizers-${{ hashFiles('vscode-extension/models.json') }}
       - run: npm ci
       - run: npm run build:pack
       - run: npm run build
       - run: npm run typecheck
       - run: npx vitest run
       - run: xvfb-run -a npm run test:ext
-      - run: npx vsce package
+      - run: npm run package
       - name: Check .vsix size
         run: |
           size=$(stat -c %s *.vsix)
@@ -40,8 +45,23 @@ jobs:
         with:
           name: tokenmeter-vsix
           path: vscode-extension/*.vsix
-      - name: Release
-        if: startsWith(github.ref, 'refs/tags/vscode-v')
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/vscode-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check tag matches package.json version
+        run: |
+          version=$(node -p "require('./vscode-extension/package.json').version")
+          test "$GITHUB_REF_NAME" = "vscode-v$version" || { echo "Tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - uses: actions/download-artifact@v8
+        with:
+          name: tokenmeter-vsix
+      - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" *.vsix --generate-notes

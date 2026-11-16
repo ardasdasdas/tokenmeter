@@ -27,7 +27,10 @@ export function activate(context: vscode.ExtensionContext): TokenmeterApi {
   const cmd = (id: string, fn: () => unknown) => vscode.commands.registerCommand(id, fn);
   context.subscriptions.push(
     statusBar,
-    cmd('tokenmeter.selectModel', () => selectModel(eng)),
+    cmd('tokenmeter.selectModel', async () => {
+      await selectModel(eng);
+      statusBar.retry(); // a tokenizer may have been removed from the picker
+    }),
     cmd('tokenmeter.addModel', () => addModel(eng)),
     cmd('tokenmeter.removeModel', async () => {
       await removeModel(eng);

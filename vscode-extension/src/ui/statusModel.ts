@@ -6,6 +6,8 @@ export interface StatusView {
   /** Tooltip paragraphs (Markdown). */
   tooltip: string[];
   warning: boolean;
+  /** Command run on click; the model picker when unset. */
+  command?: string;
 }
 
 export interface ResultInput {
@@ -50,6 +52,7 @@ export function clickToCountView(model: string): StatusView {
     text: `$(symbol-numeric) Click to count · ${shortName(model)}`,
     tooltip: ['The text is larger than `tokenmeter.maxDocumentSize`. Click to count it once.'],
     warning: false,
+    command: 'tokenmeter.countNow',
   };
 }
 

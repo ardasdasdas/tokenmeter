@@ -37,7 +37,8 @@
     "test:unit": "npm run build && vitest run",
     "typecheck": "tsc --noEmit",
     "test:ext": "vscode-test",
-    "package": "vsce package"
+    "package": "vsce package --baseContentUrl https://github.com/ardasdasdas/tokenmeter/blob/main/vscode-extension --baseImagesUrl https://raw.githubusercontent.com/ardasdasdas/tokenmeter/main/vscode-extension",
+    "vscode:prepublish": "npm run build"
   },
   "devDependencies": {
     "@resvg/resvg-js": "2.6.2",

@@ -19,6 +19,7 @@ export interface Breakdown {
 
 let panel: vscode.WebviewPanel | undefined;
 let last: Breakdown | undefined;
+let sequence = 0;
 
 /** Test hook: the data of the last rendered breakdown. */
 export function getLastBreakdown(): Breakdown | undefined {
@@ -34,6 +35,7 @@ export async function showBreakdown(context: vscode.ExtensionContext, engine: To
     return;
   }
   const cfg = getConfig();
+  const seq = ++sequence;
   let data: Breakdown;
   try {
     data = await vscode.window.withProgress(
@@ -44,6 +46,7 @@ export async function showBreakdown(context: vscode.ExtensionContext, engine: To
     void vscode.window.showErrorMessage(e instanceof Error ? e.message : String(e));
     return;
   }
+  if (seq !== sequence) return; // a newer breakdown was requested meanwhile
   data.what = target.what;
   last = data;
 

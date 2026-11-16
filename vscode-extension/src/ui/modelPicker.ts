@@ -100,5 +100,10 @@ export async function removeModel(engine: TokenEngine): Promise<void> {
     return;
   }
   const id = await vscode.window.showQuickPick(downloaded, { placeHolder: 'Remove a downloaded tokenizer' });
-  if (id) await engine.removeDownloaded(id);
+  if (!id) return;
+  try {
+    await engine.removeDownloaded(id);
+  } catch (err) {
+    void vscode.window.showErrorMessage(messageOf(err));
+  }
 }

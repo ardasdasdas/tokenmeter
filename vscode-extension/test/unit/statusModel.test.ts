@@ -70,6 +70,12 @@ describe('other views', () => {
     expect(clickToCountView('Qwen/Qwen3-8B').text).toBe('$(symbol-numeric) Click to count · Qwen3-8B');
   });
 
+  it('clicking "Click to count" counts; other views open the model picker', () => {
+    expect(clickToCountView('Qwen/Qwen3-8B').command).toBe('tokenmeter.countNow');
+    expect(loadingView().command).toBeUndefined();
+    expect(errorView('Qwen/Qwen3-8B', 'boom').command).toBeUndefined();
+  });
+
   it('error', () => {
     const v = errorView('Qwen/Qwen3-8B', 'boom');
     expect(v.text).toBe('$(warning) Tokenmeter · Qwen3-8B');
