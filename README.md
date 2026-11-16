@@ -40,8 +40,10 @@ estimate. It downloads the model's `tokenizer.json` once, caches it, and counts 
 
 **→ [ardasdasdas.github.io/tokenmeter](https://ardasdasdas.github.io/tokenmeter/)**
 
-The hosted version runs entirely in your browser. `tokenizer.json` is fetched straight from
-Hugging Face and kept in your browser's cache; your text never leaves your machine.
+The hosted version runs entirely in your browser. 50 popular models (Qwen, Gemma, gpt-oss, DeepSeek,
+GLM, Mistral, Phi and more) are built in and load from the site itself; for any other model
+`tokenizer.json` is fetched straight from Hugging Face and kept in your browser's cache.
+Your text never leaves your machine.
 Gated models (e.g. `meta-llama/*`) need an access token, so use the local server for those.
 
 ## VS Code extension
