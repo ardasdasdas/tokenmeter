@@ -1,0 +1,30 @@
+{
+  "name": "tokenmeter",
+  "displayName": "Tokenmeter",
+  "description": "Count tokens of the active document with Hugging Face tokenizers.",
+  "publisher": "ardasdasdas",
+  "license": "MIT",
+  "version": "0.1.0",
+  "type": "commonjs",
+  "main": "./dist/extension.js",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ardasdasdas/tokenmeter"
+  },
+  "scripts": {
+    "test:unit": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@types/vscode": "1.100.0",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  },
+  "dependencies": {
+    "@huggingface/tokenizers": "0.2.0"
+  }
+}
