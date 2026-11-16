@@ -128,7 +128,7 @@ pack. CI runs it before packaging.
 - `tokenmeter.model` (string, default `google/gemma-4-31B-it`)
 - `tokenmeter.includeSpecialTokens` (boolean, default false)
 - `tokenmeter.warningThreshold` (number, default 0 = off)
-- `tokenmeter.maxDocumentSize` (number of characters, default 2,000,000): above this, the live
+- `tokenmeter.maxDocumentSize` (number of characters, default 500,000; see Decisions): above this, the live
   count pauses and the status bar shows "click to count" to avoid lag.
 
 **Errors**: same messages as the website/server (gated → "add a Hugging Face token…", not found,
@@ -190,9 +190,12 @@ Settled while reviewing the design (marked *my call* where the author decided wi
   (the server default). Golden token IDs for a fixed sample set are generated once with the
   Python server code and committed as test fixtures. Tests require (a) the rebuilt-from-pack
   object to be deep-equal to the parsed original and (b) JS IDs to equal the golden IDs.
-- **Encoding API** (*my call*): `core` exposes an async `count()` and `tokenize()` from the
-  start. The live status bar only needs the count; the breakdown view requests the full pieces.
-  Whether encoding moves to a worker is still decided by measurement, without API changes.
+- **Encoding runs in a worker thread** (measured 2026-11-16 with `@huggingface/tokenizers@0.2.0`
+  on Node: loading the Gemma 4 tokenizer takes ~0.9 s, encoding 1 MB of text ~3.5 s). Loading
+  and encoding both happen in a `worker_threads` worker; the extension host never blocks.
+  Only the newest pending request per caller is run (older ones are dropped).
+- **Live count limit**: `tokenmeter.maxDocumentSize` defaults to **500,000** characters (was
+  2,000,000; changed after the measurement above). Larger documents are counted on click.
 - **Resolution order**: memory → bundled → downloaded → download. Selecting a bundled id via
   "+ New model" just selects the bundled copy.
 - **Downloads** (*my call*): 60 s timeout, 200 MB size cap, write to a temp file, parse to
