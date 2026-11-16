@@ -1,0 +1,8 @@
+[
+  "Merhaba dünya! Tokenmeter ile metnin kaç token olduğunu öğrenebilirsin.\nİkinci satır.",
+  "def f(x):\n    return x**2  # 🚀 emoji 日本語テキスト",
+  "   leading spaces and\ttabs   ",
+  "The quick brown fox jumps over the lazy dog. Ünlü çiçekler, ŞĞÜÖÇİ ığüşöç.",
+  "",
+  "<|im_start|>user\nhello<|im_end|>"
+]

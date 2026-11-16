@@ -44,6 +44,11 @@ The hosted version runs entirely in your browser. `tokenizer.json` is fetched st
 Hugging Face and kept in your browser's cache; your text never leaves your machine.
 Gated models (e.g. `meta-llama/*`) need an access token, so use the local server for those.
 
+## VS Code extension
+
+Tokenmeter is also a VS Code extension: a live token count in the status bar, 50 popular models built in for offline use, and a warning threshold for prompt writing.
+See [vscode-extension/README.md](vscode-extension/README.md), or download the `.vsix` from [Releases](https://github.com/ardasdasdas/tokenmeter/releases).
+
 ## Run locally
 
 Requires Python 3.10+.
