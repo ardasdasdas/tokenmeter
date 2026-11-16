@@ -15,6 +15,7 @@
     "url": "https://github.com/ardasdasdas/tokenmeter"
   },
   "scripts": {
+    "build:pack": "node scripts/build-pack.ts",
     "test:unit": "vitest run",
     "typecheck": "tsc --noEmit"
   },

@@ -94,6 +94,7 @@ export async function writePack(
         const packed = await compress(input, {
           params: {
             [constants.BROTLI_PARAM_QUALITY]: 11,
+            [constants.BROTLI_PARAM_LGWIN]: 24,
             [constants.BROTLI_PARAM_SIZE_HINT]: input.length,
           },
         });

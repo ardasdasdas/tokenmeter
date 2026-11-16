@@ -1,0 +1,56 @@
+# Third-party notices
+
+The bundled `tokenizer.json` files belong to their respective authors and are redistributed under the licenses listed below.
+
+| Model | License | Source |
+| --- | --- | --- |
+| Qwen/Qwen3.8-27B | apache-2.0 | https://huggingface.co/Qwen/Qwen3.8-27B/blob/37561816e66b5b9153b1b64c10968c18c1e6f4a0/tokenizer.json |
+| Qwen/Qwen3.6-35B-A3B | apache-2.0 | https://huggingface.co/Qwen/Qwen3.6-35B-A3B/blob/345d467b117d1fd5eda9b879a5988de9ae5f47a7/tokenizer.json |
+| Qwen/Qwen3.6-27B | apache-2.0 | https://huggingface.co/Qwen/Qwen3.6-27B/blob/8f33b98937c6031bb49e713dee3e8e185aafd26f/tokenizer.json |
+| Qwen/Qwen3.5-9B | apache-2.0 | https://huggingface.co/Qwen/Qwen3.5-9B/blob/c202236235762e1c871ad0ccb60c8ee5ba337b9a/tokenizer.json |
+| Qwen/Qwen3.5-4B | apache-2.0 | https://huggingface.co/Qwen/Qwen3.5-4B/blob/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/tokenizer.json |
+| Qwen/Qwen3.5-2B | apache-2.0 | https://huggingface.co/Qwen/Qwen3.5-2B/blob/15852e8c16360a2fea060d615a32b45270f8a8fc/tokenizer.json |
+| Qwen/Qwen3.5-0.8B | apache-2.0 | https://huggingface.co/Qwen/Qwen3.5-0.8B/blob/2fc06364715b967f1860aea9cf38778875588b17/tokenizer.json |
+| Qwen/Qwen3-0.6B | apache-2.0 | https://huggingface.co/Qwen/Qwen3-0.6B/blob/c1899de289a04d12100db370d81485cdf75e47ca/tokenizer.json |
+| Qwen/Qwen3-4B | apache-2.0 | https://huggingface.co/Qwen/Qwen3-4B/blob/1cfa9a7208912126459214e8b04321603b3df60c/tokenizer.json |
+| Qwen/Qwen3-8B | apache-2.0 | https://huggingface.co/Qwen/Qwen3-8B/blob/b968826d9c46dd6066d109eabc6255188de91218/tokenizer.json |
+| Qwen/Qwen3-14B | apache-2.0 | https://huggingface.co/Qwen/Qwen3-14B/blob/40c069824f4251a91eefaf281ebe4c544efd3e18/tokenizer.json |
+| Qwen/Qwen3-30B-A3B | apache-2.0 | https://huggingface.co/Qwen/Qwen3-30B-A3B/blob/ad44e777bcd18fa416d9da3bd8f70d33ebb85d39/tokenizer.json |
+| Qwen/Qwen3-Coder-30B-A3B-Instruct | apache-2.0 | https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct/blob/b2cff646eb4bb1d68355c01b18ae02e7cf42d120/tokenizer.json |
+| Qwen/Qwen2.5-7B-Instruct | apache-2.0 | https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/blob/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer.json |
+| Qwen/Qwen2.5-Coder-7B-Instruct | apache-2.0 | https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/blob/c03e6d358207e414f1eca0bb1891e29f1db0e242/tokenizer.json |
+| google/gemma-4-31B-it | apache-2.0 | https://huggingface.co/google/gemma-4-31B-it/blob/842da3794eaa0b77d5f08bae87a17459d91ff475/tokenizer.json |
+| google/gemma-4-26B-A4B-it | apache-2.0 | https://huggingface.co/google/gemma-4-26B-A4B-it/blob/4d7ae4984b7db7de8f8457170b3f1a419ee76d52/tokenizer.json |
+| google/gemma-4-12B-it | apache-2.0 | https://huggingface.co/google/gemma-4-12B-it/blob/43c9d014b231474fa7212dbb48a762566c2b255d/tokenizer.json |
+| google/gemma-4-E4B-it | apache-2.0 | https://huggingface.co/google/gemma-4-E4B-it/blob/4ecc2ba63bcac23ba4a767fc87025b1450f84c9c/tokenizer.json |
+| google/gemma-4-E2B-it | apache-2.0 | https://huggingface.co/google/gemma-4-E2B-it/blob/4adf15748de9e1a0097b6274cee9c15836c41c37/tokenizer.json |
+| openai/gpt-oss-20b | apache-2.0 | https://huggingface.co/openai/gpt-oss-20b/blob/6cee5e81ee83917806bbde320786a8fb61efebee/tokenizer.json |
+| openai/gpt-oss-120b | apache-2.0 | https://huggingface.co/openai/gpt-oss-120b/blob/b5c939de8f754692c1647ca79fbf85e8c1e70f8a/tokenizer.json |
+| deepseek-ai/DeepSeek-V4-Flash | mit | https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash/blob/60d8d70770c6776ff598c94bb586a859a38244f1/tokenizer.json |
+| deepseek-ai/DeepSeek-V4-Pro | mit | https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/b5968e9190ef611bbf34a7229255be88a0e937c1/tokenizer.json |
+| deepseek-ai/DeepSeek-V3.2 | mit | https://huggingface.co/deepseek-ai/DeepSeek-V3.2/blob/a7e62ac04ecb2c0a54d736dc46601c5606cf10a6/tokenizer.json |
+| deepseek-ai/DeepSeek-R1 | mit | https://huggingface.co/deepseek-ai/DeepSeek-R1/blob/56d4cbbb4d29f4355bab4b9a39ccb717a14ad5ad/tokenizer.json |
+| deepseek-ai/DeepSeek-R1-Distill-Qwen-7B | mit | https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B/blob/916b56a44061fd5cd7d6a8fb632557ed4f724f60/tokenizer.json |
+| zai-org/GLM-5.1 | mit | https://huggingface.co/zai-org/GLM-5.1/blob/26e1bd6e011feb778d25ae34b09b07074139d92d/tokenizer.json |
+| zai-org/GLM-5 | mit | https://huggingface.co/zai-org/GLM-5/blob/c183ef8c61faee82855eca1ed9bb3a9a7ce3b0b2/tokenizer.json |
+| zai-org/GLM-4.7-Flash | mit | https://huggingface.co/zai-org/GLM-4.7-Flash/blob/7dd20894a642a0aa287e9827cb1a1f7f91386b67/tokenizer.json |
+| zai-org/GLM-4.5-Air | mit | https://huggingface.co/zai-org/GLM-4.5-Air/blob/a24ceef6ce4f3536971efe9b778bdaa1bab18daa/tokenizer.json |
+| zai-org/GLM-4.6 | mit | https://huggingface.co/zai-org/GLM-4.6/blob/be72194883d968d7923a07e2f61681ea9a2826d1/tokenizer.json |
+| mistralai/Mistral-7B-Instruct-v0.3 | apache-2.0 | https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3/blob/c170c708c41dac9275d15a8fff4eca08d52bab71/tokenizer.json |
+| mistralai/Ministral-3-14B-Instruct-2512 | apache-2.0 | https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512/blob/29439f81c2be264d8d393273f99e7db9c0961120/tokenizer.json |
+| mistralai/Ministral-3-8B-Instruct-2512 | apache-2.0 | https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512/blob/5b26027e7b19eeb4b7352e1fed3926375dd2cb4d/tokenizer.json |
+| mistralai/Devstral-Small-2-24B-Instruct-2512 | apache-2.0 | https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512/blob/55c5b41e98c2dbd21b0c8afffc540dcfc9eb5128/tokenizer.json |
+| mistralai/Mistral-Small-3.1-24B-Instruct-2503 | apache-2.0 | https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/blob/68faf511d618ef198fef186659617cfd2eb8e33a/tokenizer.json |
+| mistralai/Mistral-Nemo-Instruct-2407 | apache-2.0 | https://huggingface.co/mistralai/Mistral-Nemo-Instruct-2407/blob/04d8a90549d23fc6bd7f642064003592df51e9b3/tokenizer.json |
+| microsoft/Phi-4-mini-instruct | mit | https://huggingface.co/microsoft/Phi-4-mini-instruct/blob/cfbefacb99257ffa30c83adab238a50856ac3083/tokenizer.json |
+| microsoft/phi-4 | mit | https://huggingface.co/microsoft/phi-4/blob/2db69c1c3e91a05d2c64a3185acfbaf36f744e25/tokenizer.json |
+| microsoft/Phi-3.5-mini-instruct | mit | https://huggingface.co/microsoft/Phi-3.5-mini-instruct/blob/2fe192450127e6a83f7441aef6e3ca586c338b77/tokenizer.json |
+| HuggingFaceTB/SmolLM3-3B | apache-2.0 | https://huggingface.co/HuggingFaceTB/SmolLM3-3B/blob/a07cc9a04f16550a088caea529712d1d335b0ac1/tokenizer.json |
+| HuggingFaceTB/SmolLM2-1.7B-Instruct | apache-2.0 | https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct/blob/31b70e2e869a7173562077fd711b654946d38674/tokenizer.json |
+| ibm-granite/granite-4.1-3b | apache-2.0 | https://huggingface.co/ibm-granite/granite-4.1-3b/blob/c0650403e44e78ec0262dab1c90914c65b196c4e/tokenizer.json |
+| ibm-granite/granite-4.2-8b | apache-2.0 | https://huggingface.co/ibm-granite/granite-4.2-8b/blob/a7042144125ce5ae64f89610e8289647fc000b9a/tokenizer.json |
+| allenai/Olmo-3-7B-Instruct | apache-2.0 | https://huggingface.co/allenai/Olmo-3-7B-Instruct/blob/6e5971d9eba42665f5bd5a0fcf047f299ce1dccc/tokenizer.json |
+| stepfun-ai/Step-3.5-Flash | apache-2.0 | https://huggingface.co/stepfun-ai/Step-3.5-Flash/blob/ab446a3de5e171ea341227e24bb1f090e1b771f7/tokenizer.json |
+| tencent/Hy3 | apache-2.0 | https://huggingface.co/tencent/Hy3/blob/a960ebc3da325ba167f069f76c41eb62c9280d22/tokenizer.json |
+| baidu/ERNIE-4.5-21B-A3B-Thinking | apache-2.0 | https://huggingface.co/baidu/ERNIE-4.5-21B-A3B-Thinking/blob/4341bb42644d5422859509fa25d41544c57181f8/tokenizer.json |
+| openai-community/gpt2 | mit | https://huggingface.co/openai-community/gpt2/blob/607a30d783dfa663caf39e06633721c8d4cfcd7e/tokenizer.json |
