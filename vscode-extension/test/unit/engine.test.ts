@@ -62,7 +62,7 @@ describe.skipIf(!ready)('TokenEngine', () => {
   });
 
   it('lists bundled models and no downloads', async () => {
-    expect(engine.bundled()).toHaveLength(50);
+    expect(engine.bundled()).toHaveLength(56);
     expect(await engine.listDownloaded()).toEqual([]);
   });
 

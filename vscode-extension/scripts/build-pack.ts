@@ -57,7 +57,10 @@ async function readIfMatching(path: string, hash: string): Promise<Buffer | unde
 
 const list = readModelList(JSON.parse(await readFile(join(root, 'models.json'), 'utf8')));
 
-for (const model of list) await checkLicense(model.id);
+/** The Hugging Face repo a model's tokenizer.json is downloaded from. */
+const repoOf = (m: BundledModel): string => m.source ?? m.id;
+
+for (const repo of new Set(list.map(repoOf))) await checkLicense(repo);
 
 const byFile = new Map<string, BundledModel[]>();
 for (const model of list) {
@@ -73,8 +76,8 @@ for (const [hash, models] of byFile) {
   const path = join(srcDir, `${hash}.json`);
   let buf = await readIfMatching(path, hash);
   if (buf === undefined) {
-    const url = `https://huggingface.co/${first.id}/resolve/${first.revision}/tokenizer.json`;
-    console.log(`download ${first.id}`);
+    const url = `https://huggingface.co/${repoOf(first)}/resolve/${first.revision}/tokenizer.json`;
+    console.log(`download ${repoOf(first)}`);
     const res = await fetchRetry(url);
     if (!res.ok) fail(`Download failed (${res.status}) for ${first.id}`);
     buf = Buffer.from(await res.arrayBuffer());
@@ -104,7 +107,7 @@ console.log(
 );
 
 const rows = list.map(
-  (m) => `| ${m.id} | ${m.license} | https://huggingface.co/${m.id}/blob/${m.revision}/tokenizer.json |`,
+  (m) => `| ${m.id} | ${m.license} | https://huggingface.co/${repoOf(m)}/blob/${m.revision}/tokenizer.json |`,
 );
 await writeFile(
   join(root, 'THIRD_PARTY_NOTICES.md'),

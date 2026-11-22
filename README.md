@@ -40,15 +40,15 @@ estimate. It downloads the model's `tokenizer.json` once, caches it, and counts 
 
 **→ [ardasdasdas.github.io/tokenmeter](https://ardasdasdas.github.io/tokenmeter/)**
 
-The hosted version runs entirely in your browser. 50 popular models (Qwen, Gemma, gpt-oss, DeepSeek,
-GLM, Mistral, Phi and more) are built in and load from the site itself; for any other model
+The hosted version runs entirely in your browser. 50 popular open models (Qwen, Gemma, gpt-oss, DeepSeek,
+GLM, Mistral, Phi and more) and OpenAI's GPT-5, GPT-4.1, GPT-4o and o-series models are built in and load from the site itself; for any other model
 `tokenizer.json` is fetched straight from Hugging Face and kept in your browser's cache.
 Your text never leaves your machine.
 Gated models (e.g. `meta-llama/*`) need an access token, so use the local server for those.
 
 ## VS Code extension
 
-Tokenmeter is also a VS Code extension: a live token count in the status bar, 50 popular models built in for offline use, and a warning threshold for prompt writing.
+Tokenmeter is also a VS Code extension: a live token count in the status bar, 50 popular open models plus OpenAI's GPT models built in for offline use, and a warning threshold for prompt writing.
 See [vscode-extension/README.md](vscode-extension/README.md), or download the `.vsix` from [Releases](https://github.com/ardasdasdas/tokenmeter/releases).
 
 ## Run locally
