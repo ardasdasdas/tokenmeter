@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- OpenAI models built in: GPT-5, GPT-4.1, GPT-4o, o4-mini, o3 and o1 (tiktoken `o200k_base`), counted offline.
+
 ## 0.1.0
 
 - First release.

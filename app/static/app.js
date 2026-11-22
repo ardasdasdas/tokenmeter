@@ -173,7 +173,7 @@
 
     return {
       name: "browser",
-      note: "Running in your browser — 50 popular tokenizers are built in; others are fetched from Hugging Face and cached in this browser. Gated models need the local server.",
+      note: "Running in your browser — 56 popular tokenizers (incl. OpenAI's GPT models) are built in; others are fetched from Hugging Face and cached in this browser. Gated models need the local server.",
       async tokenize(rawModel, text, special) {
         let model = normalize(rawModel);
         if (!REPO_RE.test(model)) {

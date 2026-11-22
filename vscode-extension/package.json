@@ -1,7 +1,7 @@
 {
   "name": "tokenmeter",
   "displayName": "Tokenmeter",
-  "description": "Exact token counts for Hugging Face models in the status bar, with 50 popular tokenizers built in.",
+  "description": "Exact token counts for Hugging Face and OpenAI models in the status bar, with 56 popular tokenizers built in.",
   "publisher": "ardasdasdas",
   "license": "MIT",
   "version": "0.1.0",

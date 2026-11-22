@@ -5,6 +5,8 @@ export interface BundledModel {
   revision: string;
   sha256: string;
   size: number;
+  /** Hugging Face repo that holds the tokenizer.json, when it is not `id` itself. */
+  source?: string;
 }
 
 const STRING_FIELDS = ['id', 'family', 'license', 'revision', 'sha256'] as const;
@@ -27,7 +29,11 @@ export function readModelList(json: unknown): BundledModel[] {
     if (typeof m.size !== 'number' || !Number.isFinite(m.size) || m.size < 0) {
       throw new Error(`models.json: entry ${i} has invalid "size"`);
     }
+    if (m.source !== undefined && (typeof m.source !== 'string' || m.source === '')) {
+      throw new Error(`models.json: entry ${i} has invalid "source"`);
+    }
     return {
+      ...(m.source !== undefined ? { source: m.source as string } : {}),
       id: m.id as string,
       family: m.family as string,
       license: m.license as string,

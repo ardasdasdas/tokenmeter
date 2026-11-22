@@ -26,6 +26,12 @@ The bundled `tokenizer.json` files belong to their respective authors and are re
 | google/gemma-4-E2B-it | apache-2.0 | https://huggingface.co/google/gemma-4-E2B-it/blob/4adf15748de9e1a0097b6274cee9c15836c41c37/tokenizer.json |
 | openai/gpt-oss-20b | apache-2.0 | https://huggingface.co/openai/gpt-oss-20b/blob/6cee5e81ee83917806bbde320786a8fb61efebee/tokenizer.json |
 | openai/gpt-oss-120b | apache-2.0 | https://huggingface.co/openai/gpt-oss-120b/blob/b5c939de8f754692c1647ca79fbf85e8c1e70f8a/tokenizer.json |
+| openai/gpt-5 | mit | https://huggingface.co/Xenova/gpt-4o/blob/7956d98f2a83b2751a98ea7136fdf7fe6cf54e69/tokenizer.json |
+| openai/gpt-4.1 | mit | https://huggingface.co/Xenova/gpt-4o/blob/7956d98f2a83b2751a98ea7136fdf7fe6cf54e69/tokenizer.json |
+| openai/gpt-4o | mit | https://huggingface.co/Xenova/gpt-4o/blob/7956d98f2a83b2751a98ea7136fdf7fe6cf54e69/tokenizer.json |
+| openai/o4-mini | mit | https://huggingface.co/Xenova/gpt-4o/blob/7956d98f2a83b2751a98ea7136fdf7fe6cf54e69/tokenizer.json |
+| openai/o3 | mit | https://huggingface.co/Xenova/gpt-4o/blob/7956d98f2a83b2751a98ea7136fdf7fe6cf54e69/tokenizer.json |
+| openai/o1 | mit | https://huggingface.co/Xenova/gpt-4o/blob/7956d98f2a83b2751a98ea7136fdf7fe6cf54e69/tokenizer.json |
 | deepseek-ai/DeepSeek-V4-Flash | mit | https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash/blob/60d8d70770c6776ff598c94bb586a859a38244f1/tokenizer.json |
 | deepseek-ai/DeepSeek-V4-Pro | mit | https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/b5968e9190ef611bbf34a7229255be88a0e937c1/tokenizer.json |
 | deepseek-ai/DeepSeek-V3.2 | mit | https://huggingface.co/deepseek-ai/DeepSeek-V3.2/blob/a7e62ac04ecb2c0a54d736dc46601c5606cf10a6/tokenizer.json |

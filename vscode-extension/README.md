@@ -11,6 +11,7 @@ Tokenmeter uses each model's own `tokenizer.json`, so the number is what the mod
 
 - **Live count** in the status bar for the active document or the current selection. With several selections the counts are added up.
 - **50 popular open models built in**: Qwen, Gemma, gpt-oss, DeepSeek, GLM, Mistral, Phi, SmolLM, Granite, OLMo and more. They work offline with nothing to download.
+- **OpenAI models built in**: `openai/gpt-5`, `openai/gpt-4.1`, `openai/gpt-4o`, `openai/o4-mini`, `openai/o3` and `openai/o1`, all counted with OpenAI's `o200k_base` encoding, offline.
 - **Any other Hugging Face model** can be added by name, for example `owner/model` or a `huggingface.co/...` link. Its `tokenizer.json` is downloaded once and cached.
 - **Token breakdown**: every token in color, with optional token IDs (**Tokenmeter: Show Token Breakdown**, also in the editor's right-click menu when text is selected).
 - **Never blocks the editor.** Tokenizing runs in a background thread, and large documents (over `tokenmeter.maxDocumentSize` characters) are only counted when you click.
@@ -42,7 +43,11 @@ Click the count in the status bar to pick a model. The list shows the model in u
 
 ## Bundled models
 
-The tokenizers of 50 models are shipped inside the extension, each pinned to a fixed revision and checked by its SHA-256. All of them come from the model makers' official Hugging Face accounts and are licensed Apache-2.0 or MIT. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list.
+The tokenizers of 56 models are shipped inside the extension, each pinned to a fixed revision and checked by its SHA-256. All are licensed Apache-2.0 or MIT. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list.
+
+- The 50 open models' tokenizers come from the model makers' official Hugging Face accounts.
+- OpenAI does not publish its API models on Hugging Face, so the OpenAI entries use a Hugging Face conversion of OpenAI's `o200k_base` encoding ([Xenova/gpt-4o](https://huggingface.co/Xenova/gpt-4o)). The build checks it against OpenAI's official `tiktoken` library, and the token IDs are identical.
+- OpenAI counts are for the text itself. The API adds a few tokens per chat message for its message format, and treats a special-token string such as `<|endoftext|>` typed in the text as plain text, which this tokenizer does not.
 
 ## Gated and private models
 
