@@ -45,9 +45,9 @@ Click the count in the status bar to pick a model. The list shows the model in u
 
 The tokenizers of 56 models are shipped inside the extension, each pinned to a fixed revision and checked by its SHA-256. All are licensed Apache-2.0 or MIT. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list.
 
-- The 50 open models' tokenizers come from the model makers' official Hugging Face accounts.
-- OpenAI does not publish its API models on Hugging Face, so the OpenAI entries use a Hugging Face conversion of OpenAI's `o200k_base` encoding ([Xenova/gpt-4o](https://huggingface.co/Xenova/gpt-4o)). The build checks it against OpenAI's official `tiktoken` library, and the token IDs are identical.
-- OpenAI counts are for the text itself. The API adds a few tokens per chat message for its message format, and treats a special-token string such as `<|endoftext|>` typed in the text as plain text, which this tokenizer does not.
+- Every tokenizer comes from the model makers' official Hugging Face accounts.
+- OpenAI does not publish its API models' tokenizers on Hugging Face. Their encoding, `o200k_base`, shares its vocabulary with OpenAI's official open-weight `openai/gpt-oss` tokenizer, so the OpenAI entries use that file. The build checks it against OpenAI's official `tiktoken` library, and the token IDs are identical.
+- OpenAI counts are for the text itself. The API adds a few tokens per chat message for its message format. Special-token strings typed in the text (such as `<|endoftext|>` or gpt-oss's `<|start|>`) are counted as single special tokens here, while OpenAI's API counts them as plain text.
 
 ## Gated and private models
 

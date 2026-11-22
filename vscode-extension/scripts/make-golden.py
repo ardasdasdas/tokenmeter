@@ -13,7 +13,8 @@ for sha in sorted({m["sha256"] for m in models}):
     golden[sha] = [tok.encode(s, add_special_tokens=False).ids for s in samples]
 
 # The OpenAI entries stand in for OpenAI's API models, whose tokenizer is tiktoken's
-# o200k_base: check the bundled file against the official library (pip install tiktoken).
+# o200k_base; they use the official openai/gpt-oss tokenizer.json, which shares its
+# vocabulary. Check it against the official library (pip install tiktoken).
 import tiktoken
 
 o200k = tiktoken.get_encoding("o200k_base")
